@@ -76,7 +76,7 @@ def render_history(username: str) -> None:
                 key=toggle_key,
             )
 
-            if st.button("Delete", key=f"delete_{prediction_id}_{original_idx}"):
+            if st.button("De", key=f"delete_{prediction_id}_{original_idx}"):
                 users[username].setdefault("history", []).pop(original_idx)
                 USERS_DB.save(users)
                 try:
