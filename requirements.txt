@@ -9,4 +9,3 @@ onnxruntime
 face_recognition
 cmake
 dlib
-git+https://github.com/ageitgey/face_recognition_models
