@@ -21,6 +21,9 @@ def render_history(username: str) -> None:
     users = USERS_DB.load()
     history = users.get(username, {}).get("history", [])
 
+    if "history_details" not in st.session_state:
+        st.session_state["history_details"] = {}
+
     if not history:
         st.info("No predictions yet.")
         return
@@ -58,12 +61,12 @@ def render_history(username: str) -> None:
                 labels = metadata.get("labels", [])
             st.write(f"**Labels:** {', '.join(labels) if labels else 'None'}")
 
-            key = f"detail_{idx}_{prediction_id}"
+            key = f"detail_{prediction_id}"
             if st.button("View Details", key=key):
-                current_detail = st.session_state.get("history_detail")
-                st.session_state["history_detail"] = None if current_detail == prediction_id else prediction_id
+                details_state = st.session_state["history_details"]
+                details_state[prediction_id] = not details_state.get(prediction_id, False)
 
-        if st.session_state.get("history_detail") == prediction_id and os.path.exists(metadata_safe):
+        if st.session_state["history_details"].get(prediction_id, False) and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
                 metadata = json.load(f)
             st.image(processed_safe, caption="Full Annotated Image", use_container_width=True)
