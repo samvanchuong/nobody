@@ -1,9 +1,12 @@
 import os
 
+import cv2
+import numpy as np
 import streamlit as st
 from PIL import Image
 
 from auth.register import USERS_DB, hash_password, is_valid_email
+from utils.face_encoding import extract_single_face_encoding
 from utils.storage_manager import ensure_user_dirs
 
 
@@ -48,12 +51,28 @@ def _save_avatar_upload(username: str, uploaded_file) -> tuple[bool, str]:
     if uploaded_file is None:
         return False, "Please select an image"
 
+    pil_image = Image.open(uploaded_file).convert("RGB")
+    image_bgr = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+
+    try:
+        encoding, _ = extract_single_face_encoding(image_bgr)
+    except ValueError as e:
+        return False, str(e)
+
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
+    pil_image.save(profile_path, format="JPEG")
 
-    image = Image.open(uploaded_file).convert("RGB")
-    image.save(profile_path, format="JPEG")
-    return True, "Avatar uploaded successfully"
+    users = USERS_DB.load()
+    user = users.get(username)
+    if not user:
+        return False, "User not found"
+
+    user["face_registration"] = True
+    user["face_encoding"] = encoding.tolist()
+    USERS_DB.save(users)
+
+    return True, "Avatar uploaded and face registered successfully"
 
 
 def render_account(username: str) -> None:
@@ -92,9 +111,13 @@ def render_account(username: str) -> None:
 
     with tab_avatar:
         st.markdown("#### Upload Avatar")
+        st.caption("Saving is automatic after upload. The image must contain exactly one face.")
         uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
-        if st.button("Save Avatar", key="account_save_avatar"):
+
+        last_processed_name = st.session_state.get("account_avatar_processed_name")
+        if uploaded is not None and uploaded.name != last_processed_name:
             ok, msg = _save_avatar_upload(username, uploaded)
+            st.session_state["account_avatar_processed_name"] = uploaded.name
             if ok:
                 st.success(msg)
                 st.rerun()
