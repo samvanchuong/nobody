@@ -27,7 +27,7 @@ def _update_password(username: str, current_password: str, new_password: str, co
 
     user["password_hash"] = hash_password(new_password)
     USERS_DB.save(users)
-    return True, "Password updated successfully"
+    return True, ""
 
 
 def _update_email(username: str, email: str) -> tuple[bool, str]:
@@ -80,14 +80,11 @@ def _save_avatar_upload(username: str, uploaded_file) -> tuple[bool, str]:
     user["face_encoding"] = encoding.tolist()
     USERS_DB.save(users)
 
-    return True, "Avatar uploaded and face registered successfully"
+    return True, ""
 
 
 def render_account(username: str) -> None:
     st.title("Account")
-    if st.session_state.get("avatar_success"):
-        st.success("Avatar uploaded successfully")
-        del st.session_state["avatar_success"]
 
     users = USERS_DB.load()
     user = users.get(username, {})
@@ -95,10 +92,14 @@ def render_account(username: str) -> None:
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
 
-    avatar_col, info_col = st.columns([1, 4], vertical_alignment="top")
+    avatar_col, info_col = st.columns([1, 3])
     with avatar_col:
         if os.path.exists(profile_path):
-            st.image(Image.open(profile_path), caption="Profile Avatar", width=500)
+            st.image(
+                Image.open(profile_path),
+                caption="Profile Avatar",
+                use_container_width=True
+            )
         else:
             st.warning("No profile avatar uploaded.")
 
@@ -107,27 +108,45 @@ def render_account(username: str) -> None:
         st.write(f"**Email:** {user.get('email', 'Not set')}")
         st.write(f"**Total predictions:** {len(user.get('history', []))}")
 
-    tab_password, tab_avatar, tab_email = st.tabs(["Change Password", "Upload Avatar", "Change Email"])
-
+    tab_password, tab_face, tab_email = st.tabs(["Change Password", "Face Registration", "Change Email"])
     with tab_password:
+        if st.session_state.get("clear_password_form"):
+            st.session_state["account_current_password"] = ""
+            st.session_state["account_new_password"] = ""
+            st.session_state["account_confirm_new_password"] = ""
+            del st.session_state["clear_password_form"]
+
         current_password = st.text_input("Current Password", type="password", key="account_current_password")
         new_password = st.text_input("New Password", type="password", key="account_new_password")
         confirm_password = st.text_input("Confirm New Password", type="password", key="account_confirm_new_password")
+
+        if st.session_state.get("password_success"):
+            st.success("Password updated successfully")
+            del st.session_state["password_success"]
+
         if st.button("Update Password", key="account_update_password"):
             ok, msg = _update_password(username, current_password, new_password, confirm_password)
             if ok:
                 st.success(msg)
+                st.session_state["clear_password_form"] = True
+                st.session_state["password_success"] = True
+                st.rerun()
             else:
                 st.error(msg)
 
-    with tab_avatar:
+    with tab_face:
         uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
+
+        if st.session_state.get("avatar_success"):
+            st.success("Face registration successful")
+            del st.session_state["avatar_success"]
 
         last_processed_name = st.session_state.get("account_avatar_processed_name")
         if uploaded is not None and uploaded.name != last_processed_name:
             ok, msg = _save_avatar_upload(username, uploaded)
             st.session_state["account_avatar_processed_name"] = uploaded.name
             if ok:
+                st.success(msg)
                 st.session_state["avatar_success"] = True
                 st.rerun()
             else:
