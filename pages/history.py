@@ -60,7 +60,8 @@ def render_history(username: str) -> None:
 
             key = f"detail_{idx}_{prediction_id}"
             if st.button("View Details", key=key):
-                st.session_state["history_detail"] = prediction_id
+                current_detail = st.session_state.get("history_detail")
+                st.session_state["history_detail"] = None if current_detail == prediction_id else prediction_id
 
         if st.session_state.get("history_detail") == prediction_id and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
