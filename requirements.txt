@@ -1,8 +1,12 @@
 streamlit
-opencv-python
 numpy
-face-recognition
-plotly
+opencv-python-headless
 Pillow
-rembg
+plotly
 ultralytics
+rembg
+onnxruntime
+face_recognition
+cmake
+dlib
+git+https://github.com/ageitgey/face_recognition_models
