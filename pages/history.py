@@ -28,6 +28,7 @@ def render_history(username: str) -> None:
     history_list = list(reversed(history))
 
     for idx, item in enumerate(history_list):
+        original_idx = len(history) - 1 - idx
         prediction_id = item["prediction_id"]
         pred_folder = os.path.join("storage", "users", username, "predictions", prediction_id)
         input_path = os.path.join(pred_folder, "input.jpg")
@@ -65,6 +66,11 @@ def render_history(username: str) -> None:
                 "View Details",
                 key=toggle_key,
             )
+
+            if st.button("Delete", key=f"delete_{prediction_id}_{original_idx}"):
+                users[username].setdefault("history", []).pop(original_idx)
+                USERS_DB.save(users)
+                st.rerun()
 
         if show_detail and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
