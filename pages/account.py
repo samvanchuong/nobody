@@ -98,7 +98,6 @@ def render_account(username: str) -> None:
     tab_password, tab_avatar, tab_email = st.tabs(["Change Password", "Upload Avatar", "Change Email"])
 
     with tab_password:
-        st.markdown("#### Change Password")
         current_password = st.text_input("Current Password", type="password", key="account_current_password")
         new_password = st.text_input("New Password", type="password", key="account_new_password")
         confirm_password = st.text_input("Confirm New Password", type="password", key="account_confirm_new_password")
@@ -110,8 +109,6 @@ def render_account(username: str) -> None:
                 st.error(msg)
 
     with tab_avatar:
-        st.markdown("#### Upload Avatar")
-        st.caption("Saving is automatic after upload. The image must contain exactly one face.")
         uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
 
         last_processed_name = st.session_state.get("account_avatar_processed_name")
@@ -125,7 +122,6 @@ def render_account(username: str) -> None:
                 st.error(msg)
 
     with tab_email:
-        st.markdown("#### Change Email")
         new_email = st.text_input("New Email", value=user.get("email", ""), key="account_new_email")
         if st.button("Update Email", key="account_update_email"):
             ok, msg = _update_email(username, new_email)
