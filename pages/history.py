@@ -1,0 +1,84 @@
+from __future__ import annotations
+
+import json
+import os
+
+import streamlit as st
+
+from auth.register import USERS_DB
+
+
+def _safe_user_file(username: str, path: str) -> str:
+    user_root = os.path.abspath(os.path.join("storage", "users", username))
+    file_abs = os.path.abspath(path)
+    if not file_abs.startswith(user_root):
+        raise ValueError("Unauthorized file path")
+    return file_abs
+
+
+def render_history(username: str) -> None:
+    st.title("Prediction History")
+    users = USERS_DB.load()
+    history = users.get(username, {}).get("history", [])
+
+    if not history:
+        st.info("No predictions yet.")
+        return
+
+    for idx, item in enumerate(reversed(history)):
+        prediction_id = item["prediction_id"]
+        pred_folder = os.path.join("storage", "users", username, "predictions", prediction_id)
+        input_path = os.path.join(pred_folder, "input.jpg")
+        processed_path = os.path.join(pred_folder, "processed.jpg")
+        metadata_path = os.path.join(pred_folder, "metadata.json")
+
+        try:
+            input_safe = _safe_user_file(username, input_path)
+            processed_safe = _safe_user_file(username, processed_path)
+            metadata_safe = _safe_user_file(username, metadata_path)
+        except ValueError:
+            st.error(f"Skipped unauthorized entry {prediction_id}")
+            continue
+
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            if os.path.exists(input_safe):
+                st.image(input_safe, caption="Input", use_container_width=True)
+        with col2:
+            if os.path.exists(processed_safe):
+                st.image(processed_safe, caption="Processed", use_container_width=True)
+        with col3:
+            st.write(f"**Time:** {item.get('time', 'N/A')}")
+            st.write(f"**Summary:** {item.get('summary', 'N/A')}")
+
+            labels = []
+            if os.path.exists(metadata_safe):
+                with open(metadata_safe, "r", encoding="utf-8") as f:
+                    metadata = json.load(f)
+                labels = metadata.get("labels", [])
+            st.write(f"**Labels:** {', '.join(labels) if labels else 'None'}")
+
+            key = f"detail_{idx}_{prediction_id}"
+            if st.button("View Details", key=key):
+                st.session_state["history_detail"] = prediction_id
+
+        if st.session_state.get("history_detail") == prediction_id and os.path.exists(metadata_safe):
+            with open(metadata_safe, "r", encoding="utf-8") as f:
+                metadata = json.load(f)
+            st.image(processed_safe, caption="Full Annotated Image", use_container_width=True)
+            st.write("Confidence Table")
+            table_data = {"Label": [], "Confidence": [], "Box": [], "Width (px)": [], "Height (px)": []}
+            for label, conf, box in zip(
+                metadata.get("labels", []), metadata.get("confidences", []), metadata.get("boxes", [])
+            ):
+                x1, y1, x2, y2 = box
+                width = int(x2) - int(x1)
+                height = int(y2) - int(y1)
+
+                table_data["Label"].append(label)
+                table_data["Confidence"].append(f"{float(conf):.2f}")
+                table_data["Box"].append(f"({int(x1)}, {int(y1)}, {int(x2)}, {int(y2)})")
+                table_data["Width (px)"].append(width)
+                table_data["Height (px)"].append(height)
+            st.table(table_data)
+        st.divider()
