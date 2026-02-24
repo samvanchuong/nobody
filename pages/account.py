@@ -52,7 +52,15 @@ def _save_avatar_upload(username: str, uploaded_file) -> tuple[bool, str]:
         return False, "Please select an image"
 
     pil_image = Image.open(uploaded_file).convert("RGB")
-    image_bgr = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+    width, height = pil_image.size
+    square_size = min(width, height)
+    left = (width - square_size) // 2
+    top = (height - square_size) // 2
+    right = left + square_size
+    bottom = top + square_size
+
+    avatar_image = pil_image.crop((left, top, right, bottom)).resize((256, 256), Image.Resampling.LANCZOS)
+    image_bgr = cv2.cvtColor(np.array(avatar_image), cv2.COLOR_RGB2BGR)
 
     try:
         encoding, _ = extract_single_face_encoding(image_bgr)
@@ -61,7 +69,7 @@ def _save_avatar_upload(username: str, uploaded_file) -> tuple[bool, str]:
 
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
-    pil_image.save(profile_path, format="JPEG")
+    avatar_image.save(profile_path, format="JPEG")
 
     users = USERS_DB.load()
     user = users.get(username)
@@ -77,6 +85,10 @@ def _save_avatar_upload(username: str, uploaded_file) -> tuple[bool, str]:
 
 def render_account(username: str) -> None:
     st.title("Account")
+    if st.session_state.get("avatar_success"):
+        st.success("Avatar uploaded successfully")
+        del st.session_state["avatar_success"]
+
     users = USERS_DB.load()
     user = users.get(username, {})
 
@@ -86,7 +98,7 @@ def render_account(username: str) -> None:
     avatar_col, info_col = st.columns([1, 4], vertical_alignment="top")
     with avatar_col:
         if os.path.exists(profile_path):
-            st.image(Image.open(profile_path), caption="Profile Avatar", width=180)
+            st.image(Image.open(profile_path), caption="Profile Avatar", width=500)
         else:
             st.warning("No profile avatar uploaded.")
 
@@ -116,7 +128,7 @@ def render_account(username: str) -> None:
             ok, msg = _save_avatar_upload(username, uploaded)
             st.session_state["account_avatar_processed_name"] = uploaded.name
             if ok:
-                st.success(msg)
+                st.session_state["avatar_success"] = True
                 st.rerun()
             else:
                 st.error(msg)
