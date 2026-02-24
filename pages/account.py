@@ -83,12 +83,10 @@ def render_account(username: str) -> None:
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
 
-    avatar_col, info_col = st.columns([2, 3], vertical_alignment="top")
+    avatar_col, info_col = st.columns([1, 4], vertical_alignment="top")
     with avatar_col:
         if os.path.exists(profile_path):
-            avatar_image = Image.open(profile_path).convert("RGB")
-            square_avatar = avatar_image.resize((200, 200))
-            st.image(square_avatar, caption="Profile Avatar", width=200)
+            st.image(Image.open(profile_path), caption="Profile Avatar", width=180)
         else:
             st.warning("No profile avatar uploaded.")
 
@@ -111,10 +109,6 @@ def render_account(username: str) -> None:
                 st.error(msg)
 
     with tab_avatar:
-        upload_success = st.session_state.pop("account_avatar_upload_success", None)
-        if upload_success:
-            st.success(upload_success)
-
         uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
 
         last_processed_name = st.session_state.get("account_avatar_processed_name")
@@ -122,7 +116,7 @@ def render_account(username: str) -> None:
             ok, msg = _save_avatar_upload(username, uploaded)
             st.session_state["account_avatar_processed_name"] = uploaded.name
             if ok:
-                st.session_state["account_avatar_upload_success"] = msg
+                st.success(msg)
                 st.rerun()
             else:
                 st.error(msg)
