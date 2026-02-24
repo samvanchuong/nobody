@@ -134,7 +134,7 @@ def render_predict(username: str) -> None:
         showlegend=False,
     )
 
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.image(annotated_rgb, use_container_width=True)
     if len(boxes) > 0:
         st.table(table_data)
 
