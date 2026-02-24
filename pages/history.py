@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 
 import streamlit as st
 
@@ -14,6 +15,14 @@ def _safe_user_file(username: str, path: str) -> str:
     if not file_abs.startswith(user_root):
         raise ValueError("Unauthorized file path")
     return file_abs
+
+
+def _safe_prediction_folder(username: str, prediction_id: str) -> str:
+    user_prediction_root = os.path.abspath(os.path.join("storage", "users", username, "predictions"))
+    prediction_folder = os.path.abspath(os.path.join(user_prediction_root, prediction_id))
+    if not prediction_folder.startswith(user_prediction_root):
+        raise ValueError("Unauthorized prediction folder")
+    return prediction_folder
 
 
 def render_history(username: str) -> None:
@@ -70,6 +79,12 @@ def render_history(username: str) -> None:
             if st.button("Delete", key=f"delete_{prediction_id}_{original_idx}"):
                 users[username].setdefault("history", []).pop(original_idx)
                 USERS_DB.save(users)
+                try:
+                    pred_folder_safe = _safe_prediction_folder(username, prediction_id)
+                    if os.path.isdir(pred_folder_safe):
+                        shutil.rmtree(pred_folder_safe)
+                except ValueError:
+                    st.warning(f"Skipped deleting unauthorized prediction folder for {prediction_id}")
                 st.rerun()
 
         if show_detail and os.path.exists(metadata_safe):
