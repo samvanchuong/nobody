@@ -19,11 +19,11 @@ def _save_user_face(username: str, encoding: np.ndarray, face_crop_bgr: np.ndarr
     save_profile_face(username, face_crop_bgr)
 
 
-def register_face_by_upload(username: str) -> None:
+def register_face_by_upload(username: str) -> bool:
     st.markdown("#### Face registration by image upload")
     uploaded = st.file_uploader("Upload face image", type=["jpg", "jpeg", "png"], key="face_upload")
     if uploaded is None:
-        return
+        return False
 
     pil_image = Image.open(uploaded).convert("RGB")
     image_bgr = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
@@ -33,8 +33,10 @@ def register_face_by_upload(username: str) -> None:
         face_crop = image_bgr[top:bottom, left:right]
         _save_user_face(username, encoding, face_crop)
         st.success("Face registered from uploaded image")
+        return True
     except ValueError as e:
         st.error(str(e))
+        return False
 
 
 def register_face_by_camera(username: str) -> None:
