@@ -25,7 +25,9 @@ def render_history(username: str) -> None:
         st.info("No predictions yet.")
         return
 
-    for idx, item in enumerate(reversed(history)):
+    history_list = list(reversed(history))
+
+    for idx, item in enumerate(history_list):
         prediction_id = item["prediction_id"]
         pred_folder = os.path.join("storage", "users", username, "predictions", prediction_id)
         input_path = os.path.join(pred_folder, "input.jpg")
@@ -59,16 +61,12 @@ def render_history(username: str) -> None:
             st.write(f"**Labels:** {', '.join(labels) if labels else 'None'}")
 
             toggle_key = f"show_detail_{prediction_id}"
-            if toggle_key not in st.session_state:
-                st.session_state[toggle_key] = False
+            show_detail = st.toggle(
+                "View Details",
+                key=toggle_key,
+            )
 
-            if st.button(
-                "Hide Details" if st.session_state[toggle_key] else "View Details",
-                key=f"btn_{prediction_id}",
-            ):
-                st.session_state[toggle_key] = not st.session_state[toggle_key]
-
-        if st.session_state.get(toggle_key, False) and os.path.exists(metadata_safe):
+        if show_detail and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
                 metadata = json.load(f)
             st.image(processed_safe, caption="Full Annotated Image", use_container_width=True)
