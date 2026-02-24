@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 import streamlit as st
 
@@ -12,10 +13,18 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
-def register_user(username: str, password: str) -> tuple[bool, str]:
+def is_valid_email(email: str) -> bool:
+    return bool(re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email.strip()))
+
+
+def register_user(username: str, password: str, email: str) -> tuple[bool, str]:
     username = username.strip()
-    if not username or not password:
-        return False, "Username and password are required"
+    email = email.strip()
+    if not username or not password or not email:
+        return False, "Username, password, and email are required"
+
+    if not is_valid_email(email):
+        return False, "Please enter a valid email address"
 
     users = USERS_DB.load()
     if username in users:
@@ -23,6 +32,7 @@ def register_user(username: str, password: str) -> tuple[bool, str]:
 
     users[username] = {
         "password_hash": hash_password(password),
+        "email": email,
         "face_encoding": [],
         "history": [],
     }
@@ -33,6 +43,7 @@ def register_user(username: str, password: str) -> tuple[bool, str]:
 def render_register_page() -> None:
     st.subheader("Create Account")
     username = st.text_input("Username", key="register_username")
+    email = st.text_input("Email", key="register_email")
     password = st.text_input("Password", type="password", key="register_password")
     confirm = st.text_input("Confirm Password", type="password", key="register_confirm")
 
@@ -40,7 +51,7 @@ def render_register_page() -> None:
         if password != confirm:
             st.error("Passwords do not match")
             return
-        ok, msg = register_user(username, password)
+        ok, msg = register_user(username, password, email)
         if ok:
             st.success(msg)
             st.session_state.page = "Login"
