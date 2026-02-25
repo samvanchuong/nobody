@@ -112,21 +112,7 @@ def render_account(username: str) -> None:
         st.write(f"**Email:** {user.get('email', 'Not set')}")
         st.write(f"**Total predictions:** {len(user.get('history', []))}")
 
-        if st.button("Delete Profile Photo", key="account_delete_profile"):
-            if os.path.exists(profile_path):
-                os.remove(profile_path)
-                st.success("Profile photo deleted successfully")
-                st.rerun()
-            else:
-                st.warning("No profile photo found")
-
-    if "account_active_tab" not in st.session_state:
-        st.session_state["account_active_tab"] = 0
-
-    tab_password, tab_face, tab_email = st.tabs(
-        ["Change Password", "Face Registration", "Change Email"],
-        index=st.session_state["account_active_tab"]
-    )
+    tab_password, tab_face, tab_email = st.tabs(["Change Password", "Face Registration", "Change Email"])
     with tab_password:
         if st.session_state.get("clear_password_form"):
             st.session_state["account_current_password"] = ""
@@ -148,7 +134,6 @@ def render_account(username: str) -> None:
                 st.success(msg)
                 st.session_state["clear_password_form"] = True
                 st.session_state["password_success"] = True
-                st.session_state["account_active_tab"] = 0
                 st.rerun()
             else:
                 st.error(msg)
@@ -167,7 +152,6 @@ def render_account(username: str) -> None:
             if ok:
                 st.success(msg)
                 st.session_state["avatar_success"] = True
-                st.session_state["account_active_tab"] = 0
                 st.rerun()
             else:
                 st.error(msg)
@@ -178,7 +162,5 @@ def render_account(username: str) -> None:
             ok, msg = _update_email(username, new_email)
             if ok:
                 st.success(msg)
-                st.session_state["account_active_tab"] = 0
-                st.rerun()
             else:
                 st.error(msg)
