@@ -102,7 +102,7 @@ def render_account(username: str) -> None:
             )
         else:
             st.image(
-                Image.open("/workspaces/nobody/avatar.png"),
+                Image.open("/workspaces/nobody/profile.png"),
                 caption="Avatar",
                 use_container_width=True
             )
