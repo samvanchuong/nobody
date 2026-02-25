@@ -8,7 +8,7 @@ from auth.session_manager import logout, restore_session
 from pages.account import render_account
 from pages.dashboard import render_dashboard
 from pages.history import render_history
-from pages.predict import render_predict
+from pages.prediction import render_predict
 from utils.json_db import JsonDB
 from utils.storage_manager import ensure_user_dirs
 
@@ -38,7 +38,7 @@ with st.sidebar:
             st.session_state.page = "Register"
     else:
         ensure_user_dirs(username)
-        for page in ["Dashboard", "Predict Image", "History", "Account"]:
+        for page in ["Dashboard", "Prediction", "History", "Account"]:
             if st.button(page, use_container_width=True):
                 st.session_state.page = page
         if st.button("Logout", use_container_width=True):
@@ -55,7 +55,7 @@ if not is_authenticated:
 else:
     if page == "Dashboard":
         render_dashboard(username)
-    elif page == "Predict Image":
+    elif page == "Prediction":
         render_predict(username)
     elif page == "History":
         render_history(username)
