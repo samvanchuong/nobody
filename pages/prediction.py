@@ -126,15 +126,20 @@ def render_predict(username: str) -> None:
         )
 
     fig.update_layout(
+        autosize=True,
         xaxis=dict(showgrid=False, visible=False),
         yaxis=dict(showgrid=False, visible=False),
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=0, r=0, t=0, b=0, pad=0),
         dragmode=False,
         hovermode="closest",
         showlegend=False,
     )
 
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        config={"displayModeBar": False, "responsive": True},
+    )
     if len(boxes) > 0:
         st.table(table_data)
 
