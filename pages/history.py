@@ -72,7 +72,7 @@ def render_history(username: str) -> None:
 
             toggle_key = f"show_detail_{prediction_id}"
             show_detail = st.toggle(
-                "View Details",
+                "View details",
                 key=toggle_key,
             )
 
