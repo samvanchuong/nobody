@@ -5,6 +5,7 @@ from datetime import datetime
 
 import cv2
 import numpy as np
+import plotly.graph_objects as go
 import streamlit as st
 from PIL import Image
 from rembg import remove
@@ -93,38 +94,47 @@ def render_predict(username: str) -> None:
     st.success("✅ MRI analysis completed successfully!")
     results = mri_model.predict(source=normalized_image_uint8, imgsz=640, conf=0.1, verbose=False)
     boxes = results[0].boxes
+    annotated_image = results[0].plot(line_width=2)
+    annotated_rgb = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
+
+    fig = go.Figure()
+    fig.add_trace(go.Image(z=annotated_rgb))
 
     table_data, labels, confidences, boxes_meta = _build_results(boxes, mri_model.names)
 
-    annotated_image = normalized_image_uint8.copy()
     for idx, coords in enumerate(boxes_meta):
         x1, y1, x2, y2 = coords
         conf = confidences[idx]
         label = labels[idx]
-        overlay_text = f"{label} {conf:.2f}"
-        cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-        (text_w, text_h), baseline = cv2.getTextSize(overlay_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-        text_x = max(x1, 0)
-        text_y = y1 - 8
-        if text_y - text_h - baseline < 0:
-            text_y = min(y1 + text_h + 8, annotated_image.shape[0] - 1)
-        bg_top = max(text_y - text_h - baseline, 0)
-        bg_bottom = min(text_y + baseline, annotated_image.shape[0] - 1)
-        bg_right = min(text_x + text_w + 4, annotated_image.shape[1] - 1)
-        cv2.rectangle(annotated_image, (text_x, bg_top), (bg_right, bg_bottom), (0, 0, 255), -1)
-        cv2.putText(
-            annotated_image,
-            overlay_text,
-            (text_x + 2, text_y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (255, 255, 255),
-            1,
-            cv2.LINE_AA,
+        w, h = x2 - x1, y2 - y1
+        hover_text = (
+            f"<b>Label:</b> {label}<br>"
+            f"<b>Confidence:</b> {conf:.2f}<br>"
+            f"<b>Box:</b> ({x1}, {y1}, {x2}, {y2})<br>"
+            f"<b>Size:</b> {w}×{h}px"
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[(x1 + x2) / 2],
+                y=[(y1 + y2) / 2],
+                mode="markers",
+                marker=dict(size=10, color="red", symbol="circle"),
+                hovertext=hover_text,
+                hoverinfo="text",
+                showlegend=False,
+            )
         )
 
-    annotated_rgb = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
-    st.image(annotated_rgb, use_container_width=True)
+    fig.update_layout(
+        xaxis=dict(showgrid=False, visible=False),
+        yaxis=dict(showgrid=False, visible=False),
+        margin=dict(l=0, r=0, t=0, b=0),
+        dragmode=False,
+        hovermode="closest",
+        showlegend=False,
+    )
+
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     if len(boxes) > 0:
         st.table(table_data)
 
