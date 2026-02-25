@@ -42,7 +42,7 @@ def register_user(username: str, password: str, email: str) -> tuple[bool, str]:
 
 
 def render_register_page() -> None:
-    st.subheader("Create Account")
+    st.title("Register")
     username = st.text_input("Username", key="register_username")
     email = st.text_input("Email", key="register_email")
     password = st.text_input("Password", type="password", key="register_password")
