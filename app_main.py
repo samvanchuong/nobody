@@ -30,6 +30,7 @@ is_authenticated = st.session_state.get("authenticated", False)
 username = st.session_state.get("username")
 
 with st.sidebar:
+    st.markdown("## 🧠 BRAIN TUMOR DETECTION")
     st.title("Navigation")
     if not is_authenticated:
         if st.button("Login", use_container_width=True):
