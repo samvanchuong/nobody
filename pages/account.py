@@ -27,7 +27,7 @@ def _update_password(username: str, current_password: str, new_password: str, co
 
     user["password_hash"] = hash_password(new_password)
     USERS_DB.save(users)
-    return True, ""
+    return
 
 
 def _update_email(username: str, email: str) -> tuple[bool, str]:
@@ -44,7 +44,7 @@ def _update_email(username: str, email: str) -> tuple[bool, str]:
 
     user["email"] = email
     USERS_DB.save(users)
-    return True, "Email updated successfully"
+    return
 
 
 def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
@@ -80,7 +80,7 @@ def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
     user["face_encoding"] = encoding.tolist()
     USERS_DB.save(users)
 
-    return True, ""
+    return
 
 
 def render_account(username: str) -> None:
@@ -128,7 +128,7 @@ def render_account(username: str) -> None:
         if st.button("Update Password", key="account_update_password"):
             ok, msg = _update_password(username, current_password, new_password, confirm_password)
             if ok:
-                st.success(msg)
+                msg
                 st.session_state["clear_password_form"] = True
                 st.session_state["password_success"] = True
                 st.rerun()
@@ -189,6 +189,12 @@ def render_account(username: str) -> None:
         if st.button("Update Email", key="account_update_email"):
             ok, msg = _update_email(username, new_email)
             if ok:
-                st.success(msg)
+                msg
+                st.session_state["email_success"] = True
+                st.rerun()
             else:
                 st.error(msg)
+
+        if st.session_state.get("email_success"):
+            st.success("Email updated successfully")
+            del st.session_state["email_success"]
