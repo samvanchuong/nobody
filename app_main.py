@@ -16,7 +16,6 @@ from utils.storage_manager import ensure_user_dirs
 st.set_page_config(page_icon="🧠", page_title="Brain Tumor Detection", layout="wide")
 
 
-# Initialize required files/folders
 JsonDB("database/users.json", default_data={})
 JsonDB("database/sessions.json", default_data={})
 os.makedirs(os.path.join("storage", "users"), exist_ok=True)
@@ -30,8 +29,19 @@ is_authenticated = st.session_state.get("authenticated", False)
 username = st.session_state.get("username")
 
 with st.sidebar:
-    st.markdown("## 🧠 BRAIN TUMOR DETECTION")
-    st.title("Navigation")
+    st.markdown(
+        """
+        <h1 style='
+            font-size:45px;
+            font-weight:800;
+            margin-top:-50px;
+        '>
+        🧠 BRAIN TUMOR DETECTION
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
+    st.divider()
     if not is_authenticated:
         if st.button("Login", use_container_width=True):
             st.session_state.page = "Login"
