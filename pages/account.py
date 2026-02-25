@@ -47,7 +47,7 @@ def _update_email(username: str, email: str) -> tuple[bool, str]:
     return True, "Email updated successfully"
 
 
-def _save_avatar_upload(username: str, uploaded_file) -> tuple[bool, str]:
+def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
     if uploaded_file is None:
         return False, "Please select an image"
 
@@ -88,6 +88,7 @@ def render_account(username: str) -> None:
 
     users = USERS_DB.load()
     user = users.get(username, {})
+    has_face_registration = bool(user.get("face_registration"))
 
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
@@ -139,22 +140,51 @@ def render_account(username: str) -> None:
                 st.error(msg)
 
     with tab_face:
-        uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
+        if st.session_state.get("face_cancel_success"):
+            st.success("Face registration cancelled successfully")
 
         if st.session_state.get("avatar_success"):
             st.success("Face registration successful")
             del st.session_state["avatar_success"]
 
-        last_processed_name = st.session_state.get("account_avatar_processed_name")
-        if uploaded is not None and uploaded.name != last_processed_name:
-            ok, msg = _save_avatar_upload(username, uploaded)
-            st.session_state["account_avatar_processed_name"] = uploaded.name
-            if ok:
-                st.success(msg)
-                st.session_state["avatar_success"] = True
+        if has_face_registration:
+            if st.button("Cancel Face Registration", key="account_cancel_face_registration"):
+                face_dir = dirs["face"]
+                if os.path.isdir(face_dir):
+                    for filename in os.listdir(face_dir):
+                        file_path = os.path.join(face_dir, filename)
+                        if not os.path.isfile(file_path):
+                            continue
+                        if not filename.lower().endswith((".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp")):
+                            continue
+                        try:
+                            os.remove(file_path)
+                        except FileNotFoundError:
+                            continue
+
+                users = USERS_DB.load()
+                user = users.get(username)
+                if user:
+                    user["face_registration"] = False
+                    user["face_encoding"] = []
+                    USERS_DB.save(users)
+
+                st.session_state["face_cancel_success"] = True
+                st.session_state.pop("account_avatar_processed_name", None)
                 st.rerun()
-            else:
-                st.error(msg)
+        else:
+            uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
+            last_processed_name = st.session_state.get("account_avatar_processed_name")
+            if uploaded is not None and uploaded.name != last_processed_name:
+                ok, msg = face_registration(username, uploaded)
+                st.session_state["account_avatar_processed_name"] = uploaded.name
+                if ok:
+                    st.success(msg)
+                    st.session_state["avatar_success"] = True
+                    st.session_state.pop("face_cancel_success", None)
+                    st.rerun()
+                else:
+                    st.error(msg)
 
     with tab_email:
         new_email = st.text_input("New Email", value=user.get("email", ""), key="account_new_email")
