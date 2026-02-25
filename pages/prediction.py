@@ -60,7 +60,7 @@ def _build_results(boxes, model_names: dict) -> tuple[dict, list, list, list]:
 def render_predict(username: str) -> None:
     detector_model, mri_model = load_models()
 
-    st.title("Prediction")
+    st.title("Predict Image")
     uploaded_file = st.file_uploader("Upload an image (JPG/PNG)", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is None:
@@ -134,7 +134,7 @@ def render_predict(username: str) -> None:
         showlegend=False,
     )
 
-    st.image(annotated_rgb, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     if len(boxes) > 0:
         st.table(table_data)
 
