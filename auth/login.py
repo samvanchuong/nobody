@@ -40,20 +40,19 @@ def render_login_page() -> None:
                 st.error(msg)
 
     with tab_face:
-        st.caption("Use your webcam to authenticate with your registered face.")
         captured_image = st.camera_input("Capture face", key="face_login_camera")
         if captured_image is not None:
             image_hash = hashlib.sha256(captured_image.getvalue()).hexdigest()
             if st.session_state.get("face_login_last_hash") != image_hash:
                 st.session_state.face_login_last_hash = image_hash
-                status = st.empty()
-                status.info("Capturing...")
                 ok, msg, username = authenticate_face_login(captured_image)
                 if ok and username:
+                    st.success(msg)
                     st.session_state.username = username
                     st.session_state.page = "Dashboard"
                     st.rerun()
-                st.error(msg)
+                else:
+                    st.error(msg)
 
 
 def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[bool, str, str | None]:
@@ -74,9 +73,6 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
     avatar_image = pil_image.crop((left, top, right, bottom)).resize((256, 256), Image.Resampling.LANCZOS)
     image_bgr = np.array(avatar_image)[:, :, ::-1]
 
-    status = st.empty()
-    status.info("Validating face...")
-
     try:
         candidate_encoding, _ = extract_single_face_encoding(image_bgr)
     except ValueError:
@@ -90,7 +86,6 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
             return False, "Please ensure only one face is visible.", None
         return False, "No human face detected.", None
 
-    status.info("Authenticating...")
     users = USERS_DB.load()
     for username, user in users.items():
         stored_encoding = user.get("face_encoding")
