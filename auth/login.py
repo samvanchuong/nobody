@@ -1,4 +1,6 @@
+import numpy as np
 import streamlit as st
+from PIL import Image
 
 from auth.register import USERS_DB, hash_password
 from auth.session_manager import create_session
@@ -37,8 +39,10 @@ def render_login_page() -> None:
 
     with tab_face:
         st.caption("Use your webcam to authenticate with your registered face.")
+        captured_image = st.camera_input("Capture face", key="face_login_camera")
+
         if st.button("Start Face Login", use_container_width=True):
-            ok, msg, username = authenticate_face_login()
+            ok, msg, username = authenticate_face_login(captured_image)
             if ok:
                 st.success(msg)
                 st.session_state.page = "Dashboard"
@@ -48,47 +52,38 @@ def render_login_page() -> None:
                 st.error(msg)
 
 
-def authenticate_face_login() -> tuple[bool, str, str | None]:
+def authenticate_face_login(captured_image) -> tuple[bool, str, str | None]:
+    if captured_image is None:
+        return False, "Please capture a photo to continue.", None
+
     try:
-        import cv2
         from utils.face_encoding import extract_single_face_encoding, is_face_match
     except Exception:
-        return False, "Camera support is unavailable in this environment.", None
-
-    capture = cv2.VideoCapture(0)
-    if not capture.isOpened():
-        return False, "Unable to access camera. Please check camera permissions.", None
+        return False, "Face authentication support is unavailable in this environment.", None
 
     try:
-        frame = None
-        for _ in range(20):
-            ok, grabbed = capture.read()
-            if not ok:
-                continue
-            frame = grabbed
-            break
+        image = Image.open(captured_image).convert("RGB")
+    except Exception:
+        return False, "Could not read captured image.", None
 
-        if frame is None:
-            return False, "Could not capture image from camera.", None
+    image_bgr = np.array(image)[:, :, ::-1]
 
-        try:
-            candidate_encoding, _ = extract_single_face_encoding(frame)
-        except ValueError:
-            return False, "Authentication failed: no detectable single face found.", None
+    try:
+        candidate_encoding, _ = extract_single_face_encoding(image_bgr)
+    except ValueError:
+        return False, "Authentication failed: no detectable single face found.", None
 
-        users = USERS_DB.load()
-        for username, user in users.items():
-            if not user.get("face_registration"):
-                continue
+    users = USERS_DB.load()
+    for username, user in users.items():
+        if not user.get("face_registration"):
+            continue
 
-            stored_encoding = user.get("face_encoding")
-            if not stored_encoding:
-                continue
+        stored_encoding = user.get("face_encoding")
+        if not stored_encoding:
+            continue
 
-            if is_face_match(stored_encoding, candidate_encoding, threshold=0.5):
-                create_session(username)
-                return True, "Face login successful", username
+        if is_face_match(stored_encoding, candidate_encoding, threshold=0.5):
+            create_session(username)
+            return True, "Face login successful", username
 
-        return False, "Authentication failed: no matching face found.", None
-    finally:
-        capture.release()
+    return False, "Authentication failed: no matching face found.", None
