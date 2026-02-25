@@ -27,7 +27,7 @@ def _update_password(username: str, current_password: str, new_password: str, co
 
     user["password_hash"] = hash_password(new_password)
     USERS_DB.save(users)
-    return
+    return True, "True"
 
 
 def _update_email(username: str, email: str) -> tuple[bool, str]:
@@ -44,7 +44,7 @@ def _update_email(username: str, email: str) -> tuple[bool, str]:
 
     user["email"] = email
     USERS_DB.save(users)
-    return
+    return True, "True"
 
 
 def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
@@ -79,8 +79,7 @@ def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
     user["face_registration"] = True
     user["face_encoding"] = encoding.tolist()
     USERS_DB.save(users)
-
-    return
+    return True, "True"
 
 
 def render_account(username: str) -> None:
