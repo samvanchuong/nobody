@@ -1,8 +1,4 @@
-import hashlib
-
-import numpy as np
 import streamlit as st
-from PIL import Image
 
 from auth.register import USERS_DB, hash_password
 from auth.session_manager import create_session
@@ -24,9 +20,30 @@ def authenticate(username: str, password: str) -> tuple[bool, str]:
 def render_login_page() -> None:
     st.subheader("Login")
 
-    tab_password, tab_face = st.tabs(["Password Login", "Face Login"])
+    if "login_mode" not in st.session_state:
+        st.session_state.login_mode = "password"
 
-    with tab_password:
+    password_col, face_col = st.columns(2)
+    with password_col:
+        if st.button(
+            "Password Login",
+            use_container_width=True,
+            type="primary" if st.session_state.login_mode == "password" else "secondary",
+            key="login_mode_password",
+        ):
+            st.session_state.login_mode = "password"
+            st.rerun()
+    with face_col:
+        if st.button(
+            "Face Login",
+            use_container_width=True,
+            type="primary" if st.session_state.login_mode == "face" else "secondary",
+            key="login_mode_face",
+        ):
+            st.session_state.login_mode = "face"
+            st.rerun()
+
+    if st.session_state.login_mode == "password":
         username = st.text_input("Username", key="login_username")
         password = st.text_input("Password", type="password", key="login_password")
 
@@ -39,9 +56,11 @@ def render_login_page() -> None:
             else:
                 st.error(msg)
 
-    with tab_face:
+    if st.session_state.login_mode == "face":
         captured_image = st.camera_input("Capture face", key="face_login_camera")
         if captured_image is not None:
+            import hashlib
+
             image_hash = hashlib.sha256(captured_image.getvalue()).hexdigest()
             if st.session_state.get("face_login_last_hash") != image_hash:
                 st.session_state.face_login_last_hash = image_hash
@@ -56,6 +75,9 @@ def render_login_page() -> None:
 
 
 def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[bool, str, str | None]:
+    import numpy as np
+    from PIL import Image
+
     from utils.face_encoding import extract_single_face_encoding, is_face_match
 
     try:
