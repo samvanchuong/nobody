@@ -112,6 +112,14 @@ def render_account(username: str) -> None:
         st.write(f"**Email:** {user.get('email', 'Not set')}")
         st.write(f"**Total predictions:** {len(user.get('history', []))}")
 
+        if st.button("Delete Profile Photo", key="account_delete_profile"):
+            if os.path.exists(profile_path):
+                os.remove(profile_path)
+                st.success("Profile photo deleted successfully")
+                st.rerun()
+            else:
+                st.warning("No profile photo found")
+
     tab_password, tab_face, tab_email = st.tabs(["Change Password", "Face Registration", "Change Email"])
     with tab_password:
         if st.session_state.get("clear_password_form"):
