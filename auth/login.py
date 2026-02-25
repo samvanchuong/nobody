@@ -1,4 +1,8 @@
+import hashlib
+
+import numpy as np
 import streamlit as st
+from PIL import Image
 
 from auth.register import USERS_DB, hash_password
 from auth.session_manager import create_session
@@ -20,80 +24,11 @@ def authenticate(username: str, password: str) -> tuple[bool, str]:
 def render_login_page() -> None:
     st.subheader("Login")
 
-    if "login_mode" not in st.session_state:
-        st.session_state.login_mode = "password"
+    tab_face, tab_password = st.tabs(["Face Login", "Password Login"])
 
-    st.markdown(
-        """
-        <style>
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stButton"] > button {
-            width: 100%;
-            border: none;
-            border-bottom: 2px solid transparent;
-            border-radius: 0;
-            background: transparent;
-            color: #6b7280;
-            padding: 0.3rem 0.5rem;
-            min-height: 2rem;
-            box-shadow: none;
-            font-weight: 500;
-        }
-
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stButton"] > button:hover {
-            background: transparent;
-            color: #374151;
-        }
-
-        div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stButton"] > button[kind="primary"] {
-            color: #111827;
-            border-bottom-color: #2563eb;
-            background: transparent;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    left_spacer, tabs_center, right_spacer = st.columns([1, 2, 1])
-    with tabs_center:
-        password_col, face_col = st.columns(2)
-    with password_col:
-        if st.button(
-            "Password Login",
-            use_container_width=True,
-            type="primary" if st.session_state.login_mode == "password" else "secondary",
-            key="login_mode_password",
-        ):
-            st.session_state.login_mode = "password"
-            st.rerun()
-    with face_col:
-        if st.button(
-            "Face Login",
-            use_container_width=True,
-            type="primary" if st.session_state.login_mode == "face" else "secondary",
-            key="login_mode_face",
-        ):
-            st.session_state.login_mode = "face"
-            st.rerun()
-
-    if st.session_state.login_mode == "password":
-        username = st.text_input("Username", key="login_username")
-        password = st.text_input("Password", type="password", key="login_password")
-
-        if st.button("Login", use_container_width=True):
-            ok, msg = authenticate(username, password)
-            if ok:
-                st.success(msg)
-                st.session_state.page = "Dashboard"
-                st.rerun()
-            else:
-                st.error(msg)
-
-    if st.session_state.login_mode == "face":
-        captured_image = st.camera_input("Capture face", key="face_login_camera")
+    with tab_face:
+        captured_image = st.camera_input("Camera", key="face_login_camera")
         if captured_image is not None:
-            import hashlib
-
             image_hash = hashlib.sha256(captured_image.getvalue()).hexdigest()
             if st.session_state.get("face_login_last_hash") != image_hash:
                 st.session_state.face_login_last_hash = image_hash
@@ -106,11 +41,21 @@ def render_login_page() -> None:
                 else:
                     st.error(msg)
 
+    with tab_password:
+        username = st.text_input("Username", key="login_username")
+        password = st.text_input("Password", type="password", key="login_password")
+
+        if st.button("Login", use_container_width=True):
+            ok, msg = authenticate(username, password)
+            if ok:
+                st.success(msg)
+                st.session_state.page = "Dashboard"
+                st.rerun()
+            else:
+                st.error(msg)
+
 
 def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[bool, str, str | None]:
-    import numpy as np
-    from PIL import Image
-
     from utils.face_encoding import extract_single_face_encoding, is_face_match
 
     try:
