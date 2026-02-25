@@ -22,7 +22,7 @@ def authenticate(username: str, password: str) -> tuple[bool, str]:
 
 
 def render_login_page() -> None:
-    st.subheader("Login")
+    st.title("Login")
 
     tab_face, tab_password = st.tabs(["Face Login", "Password Login"])
 
