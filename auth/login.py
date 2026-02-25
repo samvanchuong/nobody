@@ -24,7 +24,7 @@ def authenticate(username: str, password: str) -> tuple[bool, str]:
 def render_login_page() -> None:
     st.title("Login")
 
-    tab_face, tab_password = st.tabs(["Face Login", "Password Login"])
+    tab_face, tab_password = st.tabs(["FACE LOGIN", "PASSWORD LOGIN"])
 
     with tab_face:
         captured_image = st.camera_input("Camera", key="face_login_camera")
