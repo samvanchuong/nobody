@@ -97,7 +97,7 @@ def render_account(username: str) -> None:
         if os.path.exists(profile_path):
             st.image(
                 Image.open(profile_path),
-                caption="Profile Avatar",
+                caption="Avatar",
                 use_container_width=True
             )
         else:
