@@ -23,7 +23,40 @@ def render_login_page() -> None:
     if "login_mode" not in st.session_state:
         st.session_state.login_mode = "password"
 
-    password_col, face_col = st.columns(2)
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stButton"] > button {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            background: transparent;
+            color: #6b7280;
+            padding: 0.3rem 0.5rem;
+            min-height: 2rem;
+            box-shadow: none;
+            font-weight: 500;
+        }
+
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stButton"] > button:hover {
+            background: transparent;
+            color: #374151;
+        }
+
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stButton"] > button[kind="primary"] {
+            color: #111827;
+            border-bottom-color: #2563eb;
+            background: transparent;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    left_spacer, tabs_center, right_spacer = st.columns([1, 2, 1])
+    with tabs_center:
+        password_col, face_col = st.columns(2)
     with password_col:
         if st.button(
             "Password Login",
