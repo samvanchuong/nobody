@@ -101,7 +101,11 @@ def render_account(username: str) -> None:
                 use_container_width=True
             )
         else:
-            st.warning("No profile avatar uploaded.")
+            st.image(
+                Image.open("/workspaces/nobody/avatar.png"),
+                caption="Avatar",
+                use_container_width=True
+            )
 
     with info_col:
         st.write(f"**Username:** {username}")
