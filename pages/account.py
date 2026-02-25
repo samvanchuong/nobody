@@ -140,14 +140,8 @@ def render_account(username: str) -> None:
                 st.error(msg)
 
     with tab_face:
-        if st.session_state.get("face_cancel_success"):
-            st.success("Face registration cancelled successfully")
-
-        if st.session_state.get("avatar_success"):
-            st.success("Face registration successful")
-            del st.session_state["avatar_success"]
-
         if has_face_registration:
+            st.session_state.pop("avatar_success", None)
             if st.button("Cancel Face Registration", key="account_cancel_face_registration"):
                 face_dir = dirs["face"]
                 if os.path.isdir(face_dir):
@@ -172,14 +166,22 @@ def render_account(username: str) -> None:
                 st.session_state["face_cancel_success"] = True
                 st.session_state.pop("account_avatar_processed_name", None)
                 st.rerun()
+
+            if st.session_state.get("face_cancel_success"):
+                st.success("Face registration cancelled successfully")
         else:
             uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
+            if st.session_state.get("face_cancel_success"):
+                st.success("Face registration cancelled successfully")
+            if st.session_state.get("avatar_success"):
+                st.success("Face registration successful")
+                del st.session_state["avatar_success"]
+
             last_processed_name = st.session_state.get("account_avatar_processed_name")
             if uploaded is not None and uploaded.name != last_processed_name:
                 ok, msg = face_registration(username, uploaded)
                 st.session_state["account_avatar_processed_name"] = uploaded.name
                 if ok:
-                    st.success(msg)
                     st.session_state["avatar_success"] = True
                     st.session_state.pop("face_cancel_success", None)
                     st.rerun()
