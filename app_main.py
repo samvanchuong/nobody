@@ -12,6 +12,16 @@ from pages.prediction import render_predict
 from utils.json_db import JsonDB
 from utils.storage_manager import ensure_user_dirs
 
+st.markdown("""
+<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v7.2.0/css/all.css">
+
+<style>
+[data-testid="InputInstructions"] {
+    display: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 st.set_page_config(page_icon="🧠", page_title="Brain Tumor Detection", layout="wide")
 
@@ -57,7 +67,6 @@ with st.sidebar:
         flex-direction: column;
         justify-content: center;
         line-height: 1.25;
-        transform: translateY(-1px);
     }
     .brand-title {
         font-size: 20px;
