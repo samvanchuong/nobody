@@ -12,13 +12,13 @@ def authenticate(username: str, password: str) -> tuple[bool, str]:
     users = USERS_DB.load()
     user = users.get(username)
     if not user:
-        return False, "Invalid username/password"
+        return False, "Invalid username or password."
 
     if user.get("password_hash") != hash_password(password):
-        return False, "Invalid username/password"
+        return False, "Invalid username or password."
 
     create_session(username)
-    return True, "Login successful"
+    return True, "True"
 
 
 def render_login_page() -> None:
@@ -34,7 +34,7 @@ def render_login_page() -> None:
                 st.session_state.face_login_last_hash = image_hash
                 ok, msg, username = authenticate_face_login(captured_image)
                 if ok and username:
-                    st.success(msg)
+                    msg
                     st.session_state.username = username
                     st.session_state.page = "Dashboard"
                     st.rerun()
@@ -48,7 +48,7 @@ def render_login_page() -> None:
         if st.button("Login", use_container_width=True):
             ok, msg = authenticate(username, password)
             if ok:
-                st.success(msg)
+                msg
                 st.session_state.page = "Dashboard"
                 st.rerun()
             else:
@@ -58,10 +58,7 @@ def render_login_page() -> None:
 def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[bool, str, str | None]:
     from utils.face_encoding import extract_single_face_encoding, is_face_match
 
-    try:
-        pil_image = Image.open(captured_image).convert("RGB")
-    except Exception:
-        return False, "Could not read captured image.", None
+    pil_image = Image.open(captured_image).convert("RGB")
 
     width, height = pil_image.size
     square_size = min(width, height)
@@ -81,10 +78,10 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
         rgb = np.array(avatar_image)
         face_count = len(face_recognition.face_locations(rgb))
         if face_count == 0:
-            return False, "No human face detected.", None
+            return False, "No face detected. Please try again.", None
         if face_count > 1:
-            return False, "Please ensure only one face is visible.", None
-        return False, "No human face detected.", None
+            return False, "Please make sure only one face is visible.", None
+        return False, "No face detected. Please try again.", None
 
     users = USERS_DB.load()
     for username, user in users.items():
@@ -93,6 +90,6 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
             continue
         if is_face_match(stored_encoding, candidate_encoding, threshold=threshold):
             create_session(username)
-            return True, "Face login successful", username
+            return True, "True", username
 
-    return False, "No registered face data found for this user.", None
+    return False, "You have not registered your facial data yet. Please register before using this feature.", None
