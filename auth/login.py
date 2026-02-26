@@ -31,10 +31,10 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
         rgb = np.array(avatar_image)
         face_count = len(face_recognition.face_locations(rgb))
         if face_count == 0:
-            return False, "No face detected. Please try again!", None
+            return False, "No face detected. Please try again.", None
         if face_count > 1:
-            return False, "Please make sure only one face is visible!", None
-        return False, "No face detected. Please try again!", None
+            return False, "Please make sure only one face is visible.", None
+        return False, "No face detected. Please try again.", None
 
     users = USERS_DB.load()
     for username, user in users.items():
@@ -45,16 +45,16 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
             create_session(username)
             return True, "True", username
 
-    return False, "You have not registered your facial data yet. Please register before using this feature!", None
+    return False, "You have not registered your facial data yet. Please register before using this feature.", None
 
 def authenticate(username: str, password: str) -> tuple[bool, str]:
     users = USERS_DB.load()
     user = users.get(username)
     if not user:
-        return False, "Invalid username or password!"
+        return False, "Invalid username or password."
 
     if user.get("password_hash") != hash_password(password):
-        return False, "Invalid username or password!"
+        return False, "Invalid username or password."
 
     create_session(username)
     return True, "True"
