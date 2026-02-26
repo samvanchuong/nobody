@@ -29,19 +29,59 @@ is_authenticated = st.session_state.get("authenticated", False)
 username = st.session_state.get("username")
 
 with st.sidebar:
-    st.markdown(
-        """
-        <h1 style='
-            font-size:45px;
-            font-weight:800;
-            margin-top:-50px;
-        '>
-        🧠 BRAIN TUMOR DETECTION
-        </h1>
-        """,
-        unsafe_allow_html=True
-    )
-    st.divider()
+    st.markdown("""
+    <style>
+    .brand-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: -45px;
+        pointer-events: none;
+    }
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: rgb(255, 75, 75);
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    }
+    .brand-logo i {
+        font-size: 26px;
+        color: #FFFFFF;
+    }
+    .brand-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.25;
+        transform: translateY(-1px);
+    }
+    .brand-title {
+        font-size: 20px;
+        font-weight: 700;
+    }
+    .brand-sub {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(150,150,150,0.85);
+    }
+    </style>
+
+    <div class="brand-header">
+        <div class="brand-logo">
+            <i class="fa-solid fa-brain"></i>
+        </div>
+        <div class="brand-text">
+            <div class="brand-title">Brain.</div>
+            <div class="brand-sub">AI Medical System</div>
+        </div>
+    </div>
+    <hr>
+    """, unsafe_allow_html=True)
     if not is_authenticated:
         if st.button("Login", use_container_width=True):
             st.session_state.page = "Login"
