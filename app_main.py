@@ -35,7 +35,7 @@ with st.sidebar:
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-top: -45px;
+        margin-top: -44px;
         pointer-events: none;
     }
     .brand-logo {
@@ -92,6 +92,14 @@ with st.sidebar:
         for page in ["Dashboard", "Prediction", "History", "Account"]:
             if st.button(page, use_container_width=True, type="primary"):
                 st.session_state.page = page
+        st.markdown("""
+        <style>
+        hr.line {
+            margin-top: 1rem !important;
+        }
+        </style>
+        <hr class="line">
+        """, unsafe_allow_html=True)
         if st.button("Logout", use_container_width=True):
             logout()
             st.rerun()
