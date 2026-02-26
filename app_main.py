@@ -83,14 +83,14 @@ with st.sidebar:
     <hr>
     """, unsafe_allow_html=True)
     if not is_authenticated:
-        if st.button("Login", use_container_width=True):
+        if st.button("Login", use_container_width=True, type="primary"):
             st.session_state.page = "Login"
-        if st.button("Register", use_container_width=True):
+        if st.button("Register", use_container_width=True, type="primary"):
             st.session_state.page = "Register"
     else:
         ensure_user_dirs(username)
         for page in ["Dashboard", "Prediction", "History", "Account"]:
-            if st.button(page, use_container_width=True):
+            if st.button(page, use_container_width=True, type="primary"):
                 st.session_state.page = page
         if st.button("Logout", use_container_width=True):
             logout()
