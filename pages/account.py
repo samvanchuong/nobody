@@ -128,8 +128,8 @@ def render_account(username: str) -> None:
             ok, msg = _update_password(username, current_password, new_password, confirm_password)
             if ok:
                 msg
-                st.session_state["clear_password_form"] = True
                 st.session_state["password_success"] = True
+                st.session_state["clear_password_form"] = True
                 st.rerun()
             else:
                 st.error(msg)
