@@ -41,11 +41,19 @@ def register_user(username: str, password: str, email: str, confirm: str) -> tup
         "history": [],
     }
     USERS_DB.save(users)
-    return True, "Account created successfully. Please register your facial data on the Account page."
+    return True, "True"
 
 
 def render_register_page() -> None:
     st.title("Register")
+
+    if st.session_state.get("clear_register_form"):
+        st.session_state["register_username"] = ""
+        st.session_state["register_email"] = ""
+        st.session_state["register_password"] = ""
+        st.session_state["register_confirm"] = ""
+        del st.session_state["clear_register_form"]
+    
     username = st.text_input("Username", key="register_username")
     email = st.text_input("Email", key="register_email")
     password = st.text_input("Password", type="password", key="register_password")
@@ -54,7 +62,14 @@ def render_register_page() -> None:
     if st.button("Register", use_container_width=True):
         ok, msg = register_user(username, password, email, confirm)
         if ok:
-            st.success(msg)
-            st.session_state.page = "Login"
+            msg
+            st.session_state["register_success"] = True
+            st.session_state["clear_register_form"] = True
+            st.rerun()
         else:
             st.warning(msg)
+
+    if st.session_state.get("register_success"):
+        st.success("Account created successfully!")
+        st.info("Please register your facial data on the Account page.")
+        del st.session_state["register_success"]
