@@ -73,7 +73,7 @@ with st.sidebar:
 
     <div class="brand-header">
         <div class="brand-logo">
-            <i class="fa-solid fa-brain"></i>
+            <i class="fa-solid fa-brain-arrow-curved-right"></i>
         </div>
         <div class="brand-text">
             <div class="brand-title">Brain.</div>
