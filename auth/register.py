@@ -21,17 +21,17 @@ def register_user(username: str, password: str, email: str, confirm: str) -> tup
     username = username.strip()
     email = email.strip()
     if not username or not password or not email:
-        return False, "Please complete all required information."
+        return False, "Please complete all required information!"
 
     if not is_valid_email(email):
-        return False, "Please enter a valid email address."
+        return False, "Please enter a valid email address!"
 
     if password != confirm:
-        return False, "Passwords do not match."
+        return False, "Passwords do not match!"
 
     users = USERS_DB.load()
     if username in users:
-        return False, "This username already exists."
+        return False, "This username already exists!"
 
     users[username] = {
         "password_hash": hash_password(password),
@@ -57,4 +57,4 @@ def render_register_page() -> None:
             st.success(msg)
             st.session_state.page = "Login"
         else:
-            st.error(msg)
+            st.warning(msg)
