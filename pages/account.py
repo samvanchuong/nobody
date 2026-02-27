@@ -13,11 +13,11 @@ from utils.storage_manager import ensure_user_dirs
 def _update_password(username: str, current_password: str, new_password: str, confirm_password: str) -> tuple[bool, str]:
     users = USERS_DB.load()
     user = users.get(username)
+    if not current_password or not new_password or not confirm_password:
+        return False, "Please fill in all required password fields."
+        
     if user.get("password_hash") != hash_password(current_password):
         return False, "The current password you entered is incorrect."
-
-    if not new_password:
-        return False, "Please enter a new password."
 
     if new_password != confirm_password:
         return False, "New passwords do not match."
