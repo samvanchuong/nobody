@@ -83,23 +83,17 @@ def render_account(username: str) -> None:
 
     avatar_col, info_col = st.columns([1, 3])
     with avatar_col:
-        if os.path.exists(profile_path):
-            st.image(
-                Image.open(profile_path),
-                caption="Avatar",
-                use_container_width=True
-            )
-        else:
-            st.image(
-                Image.open("/workspaces/nobody/profile.png"),
-                caption="Avatar",
-                use_container_width=True
-            )
+        img_path = profile_path if os.path.exists(profile_path) else "/workspaces/nobody/profile.png"
+        st.image(
+            Image.open(img_path),
+            caption="Avatar",
+            use_container_width=True
+        )
 
     with info_col:
         st.write(f"- Username: {username}")
         st.write(f"- Email: {user.get('email')}")
-        st.write(f"- Total predictions: {len(user.get('history'))}")
+        st.write(f"- Number of predictions: {len(user.get('history'))}")
 
     tab_password, tab_face, tab_email = st.tabs(["Change Password", "Face Registration", "Change Email"])
     with tab_password:
@@ -157,7 +151,7 @@ def render_account(username: str) -> None:
                 st.session_state.pop("account_avatar_processed_name", None)
                 st.rerun()
         else:
-            uploaded = st.file_uploader("Upload avatar image", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
+            uploaded = st.file_uploader("Upload a face photo", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
             if st.session_state.pop("face_cancel_success", None):
                 st.success("Face registration has been removed successfully!")
 
