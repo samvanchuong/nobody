@@ -105,8 +105,13 @@ def render_login_page() -> None:
     <style>
     div[data-baseweb="button-group"] button{
         flex: 1;
-        width: 165px;
+        width: 150px;
         border-radius:0 !important;
+    }
+    @media (max-width: 450px) {
+        div[data-baseweb="button-group"] button{
+            width: 200px;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
