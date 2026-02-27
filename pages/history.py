@@ -31,44 +31,40 @@ def render_history(username: str) -> None:
     history = users.get(username, {}).get("history", [])
 
     if not history:
-        st.info("No predictions yet.")
+        st.info("No predictions available yet.")
         return
 
     history_list = list(reversed(history))
 
     for idx, item in enumerate(history_list):
-        original_idx = len(history) - 1 - idx
+        # original_idx = len(history) - 1 - idx
         prediction_id = item["prediction_id"]
         pred_folder = os.path.join("storage", "users", username, "predictions", prediction_id)
         input_path = os.path.join(pred_folder, "input.jpg")
         processed_path = os.path.join(pred_folder, "processed.jpg")
         metadata_path = os.path.join(pred_folder, "metadata.json")
 
-        try:
-            input_safe = _safe_user_file(username, input_path)
-            processed_safe = _safe_user_file(username, processed_path)
-            metadata_safe = _safe_user_file(username, metadata_path)
-        except ValueError:
-            st.error(f"Skipped unauthorized entry {prediction_id}")
-            continue
+        input_safe = _safe_user_file(username, input_path)
+        processed_safe = _safe_user_file(username, processed_path)
+        metadata_safe = _safe_user_file(username, metadata_path)
 
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
             if os.path.exists(input_safe):
-                st.image(input_safe, caption="Input", use_container_width=True)
+                st.image(input_safe, caption="Original", use_container_width=True)
         with col2:
             if os.path.exists(processed_safe):
                 st.image(processed_safe, caption="Processed", use_container_width=True)
         with col3:
-            st.write(f"**Time:** {item.get('time', 'N/A')}")
-            st.write(f"**Summary:** {item.get('summary', 'N/A')}")
+            st.write(f"- Time: {item.get('time', 'N/A')}")
+            st.write(f"- Summary: {item.get('summary', 'N/A')}")
 
             labels = []
             if os.path.exists(metadata_safe):
                 with open(metadata_safe, "r", encoding="utf-8") as f:
                     metadata = json.load(f)
                 labels = metadata.get("labels", [])
-            st.write(f"**Labels:** {', '.join(labels) if labels else 'None'}")
+            st.write(f"- Labels: {', '.join(labels) if labels else 'None'}")
 
             toggle_key = f"show_detail_{prediction_id}"
             show_detail = st.toggle(
@@ -76,22 +72,19 @@ def render_history(username: str) -> None:
                 key=toggle_key,
             )
 
-            if st.button("De", key=f"delete_{prediction_id}_{original_idx}"):
-                users[username].setdefault("history", []).pop(original_idx)
-                USERS_DB.save(users)
-                try:
-                    pred_folder_safe = _safe_prediction_folder(username, prediction_id)
-                    if os.path.isdir(pred_folder_safe):
-                        shutil.rmtree(pred_folder_safe)
-                except ValueError:
-                    st.warning(f"Skipped deleting unauthorized prediction folder for {prediction_id}")
-                st.rerun()
+            # if st.button("De", key=f"delete_{prediction_id}_{original_idx}"):
+            #     users[username].setdefault("history", []).pop(original_idx)
+            #     USERS_DB.save(users)
+            #     pred_folder_safe = _safe_prediction_folder(username, prediction_id)
+            #     if os.path.isdir(pred_folder_safe):
+            #         shutil.rmtree(pred_folder_safe)
+            #     st.rerun()
 
         if show_detail and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
                 metadata = json.load(f)
-            st.image(processed_safe, caption="Full Annotated Image", use_container_width=True)
-            st.write("Confidence Table")
+            st.image(processed_safe, caption="Processed", use_container_width=True)
+            st.write("Data Table")
             table_data = {"Label": [], "Confidence": [], "Box": [], "Width (px)": [], "Height (px)": []}
             for label, conf, box in zip(
                 metadata.get("labels", []), metadata.get("confidences", []), metadata.get("boxes", [])
@@ -107,3 +100,28 @@ def render_history(username: str) -> None:
                 table_data["Height (px)"].append(height)
             st.table(table_data)
         st.divider()
+
+        st.markdown("""
+        <style>
+        @media (max-width: 640px){
+            div[data-testid="stHorizontalBlock"]
+            > div[data-testid="stColumn"]:nth-child(1),
+            div[data-testid="stHorizontalBlock"]
+            > div[data-testid="stColumn"]:nth-child(2){
+                flex: 1 1 calc(50% - 0.5rem) !important;
+            }
+        }
+        div[data-testid="stColumn"]{
+            min-width:0 !important;
+        }
+        div[data-testid="stMarkdownContainer"] hr{
+            margin: 0 !important;
+        }
+        #line1 {
+            margin: 2rem 0 !important;
+        }
+        #line2 {
+            margin: 1rem 0 2rem 0 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
