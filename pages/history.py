@@ -26,7 +26,7 @@ def _safe_prediction_folder(username: str, prediction_id: str) -> str:
 
 
 def render_history(username: str) -> None:
-    st.title("Prediction History")
+    st.title("History")
     users = USERS_DB.load()
     history = users.get(username, {}).get("history", [])
 
