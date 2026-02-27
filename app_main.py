@@ -102,7 +102,7 @@ with st.sidebar:
                 st.session_state.page = page
         st.markdown("""
         <style>
-        line2 {
+        #line2 {
             margin-top: 1rem !important;
         }
         </style>
