@@ -55,12 +55,11 @@ with st.sidebar:
         width: 50px;
         height: 50px;
         background: rgb(255, 75, 75);
-        border-radius: 10px;
+        border-radius: 12px;
         box-shadow: 0 6px 18px rgba(0,0,0,0.2);
     }
     .brand-logo i {
-        font-size: 26px;
-        color: #FFFFFF;
+        font-size: 30px;
     }
     .brand-text {
         display: flex;
