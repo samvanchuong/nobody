@@ -21,7 +21,7 @@ def register_user(username: str, password: str, email: str, confirm: str) -> tup
     username = username.strip()
     email = email.strip()
     if not username or not password or not email:
-        return False, "Please complete all required information."
+        return False, "Please fill in all required fields."
 
     if not is_valid_email(email):
         return False, "Please enter a valid email address."
@@ -69,6 +69,6 @@ def render_register_page() -> None:
             st.warning(msg)
 
     if st.session_state.get("register_success"):
-        st.success("Account created successfully!")
-        st.info("Please register your facial data on the Account page.")
+        st.success("Your account has been created successfully!")
+        st.info("You can register your face later in the Account settings.")
         del st.session_state["register_success"]
