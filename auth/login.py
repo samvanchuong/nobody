@@ -33,7 +33,7 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
         if face_count == 0:
             return False, "No face detected. Please try again.", None
         if face_count > 1:
-            return False, "Please make sure only one face is visible.", None
+            return False, "Please ensure only one face is visible.", None
         return False, "No face detected. Please try again.", None
 
     users = USERS_DB.load()
@@ -45,7 +45,7 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
             create_session(username)
             return True, "True", username
 
-    return False, "You have not registered your facial data yet. Please register before using this feature.", None
+    return False, "Face data not found. Please register your face to use this feature.", None
 
 
 def authenticate(username: str, password: str) -> tuple[bool, str]:
