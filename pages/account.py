@@ -76,7 +76,6 @@ def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
     if not user:
         return False, "User not found"
 
-    user["face_registration"] = True
     user["face_encoding"] = encoding.tolist()
     USERS_DB.save(users)
     return True, "True"
@@ -161,7 +160,6 @@ def render_account(username: str) -> None:
                 users = USERS_DB.load()
                 user = users.get(username)
                 if user:
-                    user["face_registration"] = False
                     user["face_encoding"] = []
                     USERS_DB.save(users)
 
