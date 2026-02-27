@@ -88,7 +88,7 @@ with st.sidebar:
             <div class="brand-sub">AI Medical System</div>
         </div>
     </div>
-    <hr>
+    <hr id="line1">
     """, unsafe_allow_html=True)
     if not is_authenticated:
         if st.button("Login", use_container_width=True, type="primary"):
@@ -102,11 +102,11 @@ with st.sidebar:
                 st.session_state.page = page
         st.markdown("""
         <style>
-        hr.line {
+        line2 {
             margin-top: 1rem !important;
         }
         </style>
-        <hr class="line">
+        <hr id="line2">
         """, unsafe_allow_html=True)
         if st.button("Logout", use_container_width=True):
             logout()
