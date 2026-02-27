@@ -86,7 +86,7 @@ def render_account(username: str) -> None:
 
     users = USERS_DB.load()
     user = users.get(username, {})
-    has_face_registration = bool(user.get("face_registration"))
+    has_face_registration = bool(user.get("face_encoding"))
 
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
