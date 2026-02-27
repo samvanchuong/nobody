@@ -54,7 +54,10 @@ def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
     avatar_image = pil_image.crop((left, top, right, bottom)).resize((256, 256), Image.Resampling.LANCZOS)
     image_bgr = cv2.cvtColor(np.array(avatar_image), cv2.COLOR_RGB2BGR)
 
-    encoding, _ = extract_single_face_encoding(image_bgr)
+    try:
+        encoding, _ = extract_single_face_encoding(image_bgr)
+    except ValueError as e:
+        return False, str(e)
 
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
