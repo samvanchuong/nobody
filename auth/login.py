@@ -47,6 +47,7 @@ def authenticate_face_login(captured_image, threshold: float = 0.5) -> tuple[boo
 
     return False, "You have not registered your facial data yet. Please register before using this feature.", None
 
+
 def authenticate(username: str, password: str) -> tuple[bool, str]:
     users = USERS_DB.load()
     user = users.get(username)
@@ -63,9 +64,29 @@ def authenticate(username: str, password: str) -> tuple[bool, str]:
 def render_login_page() -> None:
     st.title("Login")
 
-    tab_face, tab_password = st.tabs(["FACE LOGIN", "PASSWORD LOGIN"])
+    login_mode = st.segmented_control(
+        "",
+        ["PASSWORD LOGIN", "FACE LOGIN"],
+        selection_mode="single",
+        default="PASSWORD LOGIN",
+        key="login_mode",
+        label_visibility="collapsed",
+    )
 
-    with tab_face:
+    if login_mode == "PASSWORD LOGIN":
+        username = st.text_input("Username", key="login_username")
+        password = st.text_input("Password", type="password", key="login_password")
+
+        if st.button("Login", use_container_width=True):
+            ok, msg = authenticate(username, password)
+            if ok:
+                msg
+                st.session_state.page = "Dashboard"
+                st.rerun()
+            else:
+                st.warning(msg)
+
+    if login_mode == "FACE LOGIN":
         captured_image = st.camera_input("Camera", key="face_login_camera")
         if captured_image is not None:
             image_hash = hashlib.sha256(captured_image.getvalue()).hexdigest()
@@ -80,15 +101,12 @@ def render_login_page() -> None:
                 else:
                     st.warning(msg)
 
-    with tab_password:
-        username = st.text_input("Username", key="login_username")
-        password = st.text_input("Password", type="password", key="login_password")
-
-        if st.button("Login", use_container_width=True):
-            ok, msg = authenticate(username, password)
-            if ok:
-                msg
-                st.session_state.page = "Dashboard"
-                st.rerun()
-            else:
-                st.warning(msg)
+    st.markdown("""
+    <style>
+    div[data-baseweb="button-group"] button{
+        flex: 1;
+        width: 165px;
+        border-radius:0 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
