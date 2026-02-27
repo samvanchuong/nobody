@@ -36,7 +36,6 @@ def register_user(username: str, password: str, email: str, confirm: str) -> tup
     users[username] = {
         "password_hash": hash_password(password),
         "email": email,
-        "face_registration": False,
         "face_encoding": [],
         "history": [],
     }
