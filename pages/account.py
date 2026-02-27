@@ -180,7 +180,7 @@ def render_account(username: str) -> None:
                 st.session_state["email_success"] = True
                 st.rerun()
             else:
-                st.error(msg)
+                st.warning(msg)
 
         if st.session_state.get("email_success"):
             st.success("Your email has been updated successfully!")
