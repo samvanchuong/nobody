@@ -5,10 +5,10 @@ import streamlit as st
 from auth.login import render_login_page
 from auth.register import render_register_page
 from auth.session_manager import logout, restore_session
-from pages.account import render_account
-from pages.dashboard import render_dashboard
-from pages.history import render_history
-from pages.prediction import render_predict
+from ui.account import render_account
+from ui.dashboard import render_dashboard
+from ui.history import render_history
+from ui.prediction import render_predict
 from utils.json_db import JsonDB
 from utils.storage_manager import ensure_user_dirs
 

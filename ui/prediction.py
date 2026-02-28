@@ -151,7 +151,7 @@ def render_predict(username: str) -> None:
         {
             "prediction_id": artifacts["prediction_id"],
             "time": metadata["timestamp"],
-            "result_path": artifacts["processed_path"],
+            "result_path": artifacts["output_path"],
             "summary": ", ".join(sorted(set(labels))) if labels else "No tumor detected",
         }
     )

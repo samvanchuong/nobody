@@ -50,16 +50,16 @@ def create_prediction_folder(username: str) -> tuple[str, str]:
 def save_prediction_artifacts(
     username: str,
     input_bgr: np.ndarray,
-    processed_bgr: np.ndarray,
+    output_bgr: np.ndarray,
     metadata: Dict[str, Any],
 ) -> Dict[str, str]:
     prediction_id, pred_path = create_prediction_folder(username)
     input_path = os.path.join(pred_path, "input.jpg")
-    processed_path = os.path.join(pred_path, "processed.jpg")
+    output_path = os.path.join(pred_path, "output.jpg")
     metadata_path = os.path.join(pred_path, "metadata.json")
 
     cv2.imwrite(input_path, input_bgr)
-    cv2.imwrite(processed_path, processed_bgr)
+    cv2.imwrite(output_path, output_bgr)
 
     payload = dict(metadata)
     payload["prediction_id"] = prediction_id
@@ -70,6 +70,6 @@ def save_prediction_artifacts(
         "prediction_id": prediction_id,
         "folder": pred_path,
         "input_path": input_path,
-        "processed_path": processed_path,
+        "output_path": output_path,
         "metadata_path": metadata_path,
     }

@@ -41,11 +41,11 @@ def render_history(username: str) -> None:
         prediction_id = item["prediction_id"]
         pred_folder = os.path.join("storage", "users", username, "predictions", prediction_id)
         input_path = os.path.join(pred_folder, "input.jpg")
-        processed_path = os.path.join(pred_folder, "processed.jpg")
+        output_path = os.path.join(pred_folder, "output.jpg")
         metadata_path = os.path.join(pred_folder, "metadata.json")
 
         input_safe = _safe_user_file(username, input_path)
-        processed_safe = _safe_user_file(username, processed_path)
+        output_safe = _safe_user_file(username, output_path)
         metadata_safe = _safe_user_file(username, metadata_path)
 
         col1, col2, col3 = st.columns([1, 1, 2])
@@ -53,8 +53,8 @@ def render_history(username: str) -> None:
             if os.path.exists(input_safe):
                 st.image(input_safe, caption="Original", use_container_width=True)
         with col2:
-            if os.path.exists(processed_safe):
-                st.image(processed_safe, caption="Processed", use_container_width=True)
+            if os.path.exists(output_safe):
+                st.image(output_safe, caption="Output", use_container_width=True)
         with col3:
             st.write(f"- Time: {item.get('time', 'N/A')}")
             st.write(f"- Summary: {item.get('summary', 'N/A')}")
@@ -83,7 +83,7 @@ def render_history(username: str) -> None:
         if show_detail and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
                 metadata = json.load(f)
-            st.image(processed_safe, caption="Processed", use_container_width=True)
+            st.image(output_safe, caption="Output", use_container_width=True)
             st.write("Data Table")
             table_data = {"Label": [], "Confidence": [], "Box": [], "Width (px)": [], "Height (px)": []}
             for label, conf, box in zip(
