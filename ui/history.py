@@ -17,14 +17,6 @@ def _safe_user_file(username: str, path: str) -> str:
     return file_abs
 
 
-def _safe_prediction_folder(username: str, prediction_id: str) -> str:
-    user_prediction_root = os.path.abspath(os.path.join("private", username, "predictions"))
-    prediction_folder = os.path.abspath(os.path.join(user_prediction_root, prediction_id))
-    if not prediction_folder.startswith(user_prediction_root):
-        raise ValueError("Unauthorized prediction folder")
-    return prediction_folder
-
-
 def render_history(username: str) -> None:
     st.title("History")
     users = USERS_DB.load()
@@ -37,7 +29,6 @@ def render_history(username: str) -> None:
     history_list = list(reversed(history))
 
     for idx, item in enumerate(history_list):
-        # original_idx = len(history) - 1 - idx
         prediction_id = item["prediction_id"]
         pred_folder = os.path.join("private", username, "predictions", prediction_id)
         input_path = os.path.join(pred_folder, "input.jpg")
@@ -71,14 +62,6 @@ def render_history(username: str) -> None:
                 "View details",
                 key=toggle_key,
             )
-
-            # if st.button("De", key=f"delete_{prediction_id}_{original_idx}"):
-            #     users[username].setdefault("history", []).pop(original_idx)
-            #     USERS_DB.save(users)
-            #     pred_folder_safe = _safe_prediction_folder(username, prediction_id)
-            #     if os.path.isdir(pred_folder_safe):
-            #         shutil.rmtree(pred_folder_safe)
-            #     st.rerun()
 
         if show_detail and os.path.exists(metadata_safe):
             with open(metadata_safe, "r", encoding="utf-8") as f:
