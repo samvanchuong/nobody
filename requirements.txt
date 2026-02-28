@@ -1,11 +1,9 @@
-streamlit
-numpy
-opencv-python-headless
-Pillow
-plotly
-ultralytics
-rembg
 onnxruntime
-face_recognition
-cmake
-dlib
+opencv-python
+rembg
+ultralytics
+plotly
+streamlit
+dlib-bin
+face-recognition-models
+face-recognition --no-deps
