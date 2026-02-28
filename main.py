@@ -28,7 +28,7 @@ st.set_page_config(page_icon="🧠", page_title="Brain Tumor Detection", layout=
 
 JsonDB("database/users.json", default_data={})
 JsonDB("database/sessions.json", default_data={})
-os.makedirs(os.path.join("storage", "users"), exist_ok=True)
+os.makedirs(os.path.join("private"), exist_ok=True)
 
 restore_session()
 

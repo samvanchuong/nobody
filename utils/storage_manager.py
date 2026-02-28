@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 
-BASE_STORAGE = os.path.join("storage", "users")
+BASE_STORAGE = os.path.join("private")
 
 
 def _safe_user_root(username: str) -> str:
