@@ -90,7 +90,7 @@ def render_account(username: str) -> None:
 
     avatar_col, info_col = st.columns([1, 3])
     with avatar_col:
-        img_path = profile_path if os.path.exists(profile_path) else "/workspaces/nobody/profile.png"
+        img_path = profile_path if os.path.exists(profile_path) else "profile.png"
         st.image(
             Image.open(img_path),
             caption="Avatar",
