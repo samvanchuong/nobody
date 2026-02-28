@@ -70,5 +70,5 @@ def render_register_page() -> None:
 
     if st.session_state.get("register_success"):
         st.success("Your account has been created successfully!")
-        st.info("You can register your face later in the Account settings.")
+        st.info("You can register your face in the Account section.")
         del st.session_state["register_success"]
