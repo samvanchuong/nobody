@@ -151,7 +151,7 @@ def render_account(username: str) -> None:
                 st.session_state.pop("account_avatar_processed_name", None)
                 st.rerun()
         else:
-            uploaded = st.file_uploader("Upload a face photo", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
+            uploaded = st.file_uploader("Upload an image (JPG/PNG)", type=["jpg", "jpeg", "png"], key="account_avatar_upload")
             if st.session_state.pop("face_cancel_success", None):
                 st.success("Face registration has been removed successfully!")
 
