@@ -6,7 +6,7 @@ import streamlit as st
 from PIL import Image
 
 from auth.register import USERS_DB, hash_password, is_valid_email
-from utils.face_encoding import extract_single_face_encoding
+from utils.face_encoding import extract_single_face_encoding, is_face_match
 from utils.storage_manager import ensure_user_dirs
 
 
@@ -59,11 +59,18 @@ def face_registration(username: str, uploaded_file) -> tuple[bool, str]:
     except ValueError as e:
         return False, str(e)
 
+    users = USERS_DB.load()
+    for existing_user in users.values():
+        stored_encoding = existing_user.get("face_encoding")
+        if not stored_encoding:
+            continue
+        if is_face_match(stored_encoding, encoding):
+            return False, "This face is already registered"
+
     dirs = ensure_user_dirs(username)
     profile_path = os.path.join(dirs["face"], "profile.jpg")
     avatar_image.save(profile_path, format="JPEG")
 
-    users = USERS_DB.load()
     user = users.get(username)
 
     user["face_encoding"] = encoding.tolist()
