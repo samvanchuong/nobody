@@ -10,7 +10,7 @@ from auth.register import USERS_DB
 
 
 def _safe_user_file(username: str, path: str) -> str:
-    user_root = os.path.abspath(os.path.join("storage", "users", username))
+    user_root = os.path.abspath(os.path.join("private", username))
     file_abs = os.path.abspath(path)
     if not file_abs.startswith(user_root):
         raise ValueError("Unauthorized file path")
@@ -18,7 +18,7 @@ def _safe_user_file(username: str, path: str) -> str:
 
 
 def _safe_prediction_folder(username: str, prediction_id: str) -> str:
-    user_prediction_root = os.path.abspath(os.path.join("storage", "users", username, "predictions"))
+    user_prediction_root = os.path.abspath(os.path.join("private", username, "predictions"))
     prediction_folder = os.path.abspath(os.path.join(user_prediction_root, prediction_id))
     if not prediction_folder.startswith(user_prediction_root):
         raise ValueError("Unauthorized prediction folder")
@@ -39,7 +39,7 @@ def render_history(username: str) -> None:
     for idx, item in enumerate(history_list):
         # original_idx = len(history) - 1 - idx
         prediction_id = item["prediction_id"]
-        pred_folder = os.path.join("storage", "users", username, "predictions", prediction_id)
+        pred_folder = os.path.join("private", username, "predictions", prediction_id)
         input_path = os.path.join(pred_folder, "input.jpg")
         output_path = os.path.join(pred_folder, "output.jpg")
         metadata_path = os.path.join(pred_folder, "metadata.json")
